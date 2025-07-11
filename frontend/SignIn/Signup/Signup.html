@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="signup.css">
+</head>
+<body>
+  <div class="auth-wrapper">
+    <!-- Left Side Form -->
+    <div class="auth-form">
+      <h2>Create your account</h2>
+      <p class="form-description">Fill in the details to sign up</p>
+      <form id="signupForm">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <div class="form-group">
+          <label for="confirm">Confirm Password</label>
+          <input type="password" id="confirm" name="confirm" required aria-describedby="matchError" />
+          <small id="matchError" class="error" role="alert">Passwords do not match.</small>
+        </div>
+        <div class="form-actions">
+          <button type="submit" id="signupBtn">Sign Up</button>
+        </div>
+        <div class="oauth-buttons">
+          <button type="button" aria-label="Sign in with Google"><img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google"> Sign up with Google</button>
+          <button type="button" aria-label="Sign in with GitHub">
+            <img src="Accesories/Octicons-mark-github.svg" alt="GitHub"> Sign in with GitHub
+          </button>
+        </div>
+        <div class="form-footer">
+          Already have an account? <a href="Login.html">Sign In</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Right Side Image -->
+    <div class="auth-image">
+      <!-- You can add your image here -->
+      <!-- Example: background-image: url('your-image.jpg') in CSS -->
+    </div>
+  </div>
+
+  <script src="signup.js"></script>
+</body>
+</html>

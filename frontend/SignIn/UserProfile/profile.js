@@ -1,30 +1,54 @@
 // profile.js
 
-document.getElementById("profileForm").addEventListener("submit", function (e) {
+// MultipleFiles/reset.js
+document.getElementById("resetForm").addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const name = document.getElementById("name").value;
   const email = document.getElementById("email").value;
-  const role = document.getElementById("role").value;
+  const newPassword = document.getElementById("newPassword").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+  const errorText = document.getElementById("resetMatchError");
+  const resetBtn = document.getElementById("resetBtn");
 
-  const rolePanel = document.getElementById("rolePanel");
-
-  // Simulate saving and showing role-specific content
-  rolePanel.innerHTML = "<h3>Access Panel for " + role.charAt(0).toUpperCase() + role.slice(1) + "</h3>";
-
-  switch (role) {
-    case "admin":
-      rolePanel.innerHTML += "<p>You have access to admin dashboard, user management and settings.</p>";
-      break;
-    case "user":
-      rolePanel.innerHTML += "<p>You can update your profile and manage your account.</p>";
-      break;
-    case "patient":
-      rolePanel.innerHTML += "<p>You can view prescriptions, book appointments and communicate with doctors.</p>";
-      break;
-    default:
-      rolePanel.innerHTML += "<p>No role-specific permissions found.</p>";
+  if (!email || !newPassword || !confirmPassword) {
+    alert("Please fill in all fields.");
+    return;
   }
 
-  alert("Profile updated successfully!");
+  if (newPassword !== confirmPassword) {
+    errorText.style.display = "block";
+    return;
+  } else {
+    errorText.style.display = "none";
+  }
+
+  resetBtn.disabled = true;
+  resetBtn.textContent = "Resetting...";
+
+  try {
+    const response = await fetch('/api/reset-password', { // Replace with your actual backend URL
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, newPassword })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert("Password reset successful for: " + email);
+      document.getElementById("resetForm").reset();
+      // Optionally redirect to login page
+      window.location.href = "Login.html";
+    } else {
+      alert("Password reset failed: " + (data.error || "Unknown error"));
+    }
+  } catch (error) {
+    console.error("Network error during password reset:", error);
+    alert("An error occurred. Please try again later.");
+  } finally {
+    resetBtn.disabled = false;
+    resetBtn.textContent = "Reset Password";
+  }
 });

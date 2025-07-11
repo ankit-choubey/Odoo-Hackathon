@@ -1,0 +1,3 @@
+id,text,entities
+1,Apple Inc. was founded by Steve Jobs in California.,"[('Apple Inc.', 'ORG'), ('Steve Jobs', 'PERSON'), ('California', 'GPE')]"
+2,Sundar Pichai is the CEO of Google.,"[('Sundar Pichai', 'PERSON'), ('Google', 'ORG')]"

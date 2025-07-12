@@ -1,6 +1,6 @@
 # 🚀 StackIt
 
-[Explore the live site here!](https://stackit.super.site/) 🌐
+##[StackIt](https://stackit.super.site/) 🌐
 
 ---
 
@@ -92,6 +92,19 @@ npm run dev
    cd ml_service/enhancer
    pip install -r requirements.txt
    python enhance.py
+
+   ##Semantic Search
+   cd ml_service/semantic_search
+   pip install -r requirements.txt
+   python search.py
+
+   ##Answer Quality Scoring
+   cd ml_service/quality_answer
+   pip install -r requirements.txt
+   python quality.py
+
+
+
 
 
 

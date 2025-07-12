@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.10
+
 # enhancer.py
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 import torch

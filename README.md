@@ -1,10 +1,10 @@
-# \# StackIt – A New Era of QnA
+# StackIt – A New Era of QnA
 
 # 
 
-# \## 🚀 Problem Statement 2:
+## 🚀 Problem Statement 2:
 
-# \*StackIt – A Minimal Q\&A Forum Platform\*
+# **StackIt – A Minimal Q\&A Forum Platform**
 
 # 
 
@@ -12,7 +12,7 @@
 
 # 
 
-# \*StackIt\* aims to bridge this gap by providing a \*lightweight, user-friendly, and minimalistic Q\&A forum\* that empowers users to ask questions, provide answers, and collaborate effectively in a distraction-free environment. The platform is designed to encourage clean interactions, rapid learning, and knowledge building—without unnecessary noise or complexity.
+# **StackIt** aims to bridge this gap by providing a \*\*lightweight, user-friendly, and minimalistic Q\&A forum\*\* that empowers users to ask questions, provide answers, and collaborate effectively in a distraction-free environment. The platform is designed to encourage clean interactions, rapid learning, and knowledge building — without unnecessary noise or complexity.
 
 # 
 
@@ -20,33 +20,31 @@
 
 # 
 
-# \## 👥 Team Members
+## 👥 Team Members
 
 # 
 
-# 1\. \*Ankit Choubey\* (Team Lead)  
+# 1\. **Ankit Choubey**(Team Lead)
 
-# &nbsp;  📧 ankitkumarchoubey0909@gmail.com
-
-# 
-
-# 2\. \*Devraj Sahani\*  
-
-# &nbsp;  📧 devrajsahani923@gmail.com
+#    📧 ankitkumarchoubey0909@gmail.com
 
 # 
 
-# 3\. \*Sankalp Tiwari\*  
+# 2\. **Devraj Sahani**
 
-# &nbsp;  📧 sankalp\_tiwari@srmap.edu.in
-
-# 
-
-# 4\. \*Utkarsh Singh\*  
-
-# &nbsp;  📧 utkarsh\_singh@srmap.edu.in
+#    📧 devrajsahani923@gmail.com
 
 # 
 
-# ---
+# 3\. **Sankalp Tiwari**
+
+#    📧 sankalp\_tiwari@srmap.edu.in
+
+# 
+
+# 4\. **Utkarsh Singh**
+
+#    📧 utkarsh\_singh@srmap.edu.in
+
+
 

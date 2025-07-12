@@ -1,5 +1,0 @@
-install pillow
-install matplotlib
-install tqdm
-install torch torchvision torchaudio
-keep python version 3.10 

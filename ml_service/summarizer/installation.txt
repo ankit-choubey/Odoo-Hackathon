@@ -1,4 +1,0 @@
-use python 3.10
-use pytorch
-use transformer
-

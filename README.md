@@ -12,7 +12,7 @@
 
 # 
 
-# **StackIt** aims to bridge this gap by providing a \*\*lightweight, user-friendly, and minimalistic Q\&A forum\*\* that empowers users to ask questions, provide answers, and collaborate effectively in a distraction-free environment. The platform is designed to encourage clean interactions, rapid learning, and knowledge building — without unnecessary noise or complexity.
+# **StackIt** aims to bridge this gap by providing a **lightweight, user-friendly, and minimalistic Q\&A forum** that empowers users to ask questions, provide answers, and collaborate effectively in a distraction-free environment. The platform is designed to encourage clean interactions, rapid learning, and knowledge building — without unnecessary noise or complexity.
 
 # 
 
@@ -45,6 +45,4 @@
 # 4\. **Utkarsh Singh**
 
 #    📧 utkarsh\_singh@srmap.edu.in
-
-
 

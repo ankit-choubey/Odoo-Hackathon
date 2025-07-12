@@ -1,3 +1,5 @@
+import sys
+import json
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 
 model_name = "google/flan-t5-base"  # or "google/flan-t5-large"
@@ -18,8 +20,19 @@ def generate_answer(question: str, max_length: int = 200) -> str:
 
     return tokenizer.decode(output_ids[0], skip_special_tokens=True)
 
-if __name__ == "__main__":
-    question = "What is Dijkstra's Algorithm?"
+def main():
+    if len(sys.argv) < 2:
+        print(json.dumps({"error": "No input provided"}))
+        return
+
+    data = json.loads(sys.argv[1])
+    question = data.get("question", "")
+    if not question:
+        print(json.dumps({"error": "Question is empty"}))
+        return
+
     answer = generate_answer(question)
-    print("Q:", question)
-    print("AI Answer:", answer)
+    print(json.dumps({"answer": answer}))
+
+if __name__ == "__main__":
+    main()

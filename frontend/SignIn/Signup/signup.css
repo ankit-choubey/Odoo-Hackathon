@@ -103,7 +103,7 @@ body {
   background-size: cover;
   min-height: 600px;
   /* Add your image in background-image property below */
-  background-image: url('Accesories/photo-1525498128493-380d1990a112.avif'); /* <- your image path */
+  background-image: url('/Accesories/photo-1525498128493-380d1990a112.avif'); /* <- your image path */
 }
 
 button:focus-visible,

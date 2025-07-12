@@ -73,5 +73,25 @@
 git clone https://github.com/ankit-choubey/StackIt.git
 cd StackIt
 
+## 🛠️ Usage Instructions
+
+### 1. Run the Backend Server
+
+```bash
+cd backend
+npm install
+npm run dev
+
+###2. Run the Frontend
+cd frontend
+npm install
+npm run dev
+
+###3.Start Machine Learning Services
+   ##Prompt Enhancer
+   cd ml_service/enhancer
+   pip install -r requirements.txt
+   python enhance.py
+
 
 

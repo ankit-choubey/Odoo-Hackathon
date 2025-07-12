@@ -1,6 +1,6 @@
 # 🚀 StackIt
 
-##[StackIt](https://stackit.super.site/) 🌐
+## [StackIt](https://stackit.super.site/) 🌐
 
 ---
 

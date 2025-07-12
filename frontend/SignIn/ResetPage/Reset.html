@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reset Password</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="reset.css">
+</head>
+<body>
+  <div class="auth-wrapper">
+    <!-- Left Side Form -->
+    <div class="auth-form">
+      <h2>Reset Your Password</h2>
+      <p class="form-description">Enter your email and new password below</p>
+      <form id="resetForm">
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label for="newPassword">New Password</label>
+          <input type="password" id="newPassword" name="newPassword" required />
+        </div>
+        <div class="form-group">
+          <label for="confirmPassword">Confirm New Password</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" required aria-describedby="resetMatchError" />
+          <small id="resetMatchError" class="error" role="alert">Passwords do not match.</small>
+        </div>
+        <div class="form-actions">
+          <button type="submit" id="resetBtn">Reset Password</button>
+        </div>
+        <div class="form-footer">
+          <a href="/Login.html">Back to Login</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Right Side Image -->
+    <div class="auth-image"></div>
+  </div>
+
+  <script src="reset.js"></script>
+</body>
+</html>

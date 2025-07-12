@@ -1,262 +1,354 @@
-import { useEffect } from "react";
-import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Header } from "@/components/Header";
-import { Eye, MessageSquare, Calendar } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { useAuth } from "@/hooks/useAuth";
+import { Header } from "@/components/layout/header";
+import { Sidebar } from "@/components/layout/sidebar";
+import { QuestionCard } from "@/components/questions/question-card";
+import { AskQuestionModal } from "@/components/questions/ask-question-modal";
+import { QuestionDetailModal } from "@/components/questions/question-detail-modal";
+import { mockQuestions } from "@/lib/mock-data";
+import { Question, InsertQuestion } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
-import { isUnauthorizedError } from "@/lib/authUtils";
-
-interface Question {
-  id: number;
-  title: string;
-  content: string;
-  authorId: string;
-  views: number;
-  createdAt: string;
-  updatedAt: string;
-  author?: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    profileImageUrl: string;
-    reputation: number;
-  };
-  tags?: Array<{ id: number; name: string }>;
-  answerCount?: number;
-}
-
-interface Stats {
-  questions: number;
-  answers: number;
-  users: number;
-  tags: number;
-}
 
 export default function Home() {
-  const { isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
+  const [questions, setQuestions] = useState(mockQuestions);
+  const [filteredQuestions, setFilteredQuestions] = useState(mockQuestions);
+  const [activeTab, setActiveTab] = useState("home");
+  const [sortBy, setSortBy] = useState("newest");
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [showAskModal, setShowAskModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [questionsPerPage] = useState(5);
+  const [filterBy, setFilterBy] = useState("newest");
 
-  // Redirect to home if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-      return;
-    }
-  }, [isAuthenticated, isLoading, toast]);
 
-  const { data: questions = [], isLoading: questionsLoading } = useQuery({
-    queryKey: ["/api/questions"],
-    enabled: isAuthenticated,
-    retry: false,
-  });
 
-  const { data: tags = [] } = useQuery({
-    queryKey: ["/api/tags"],
-    enabled: isAuthenticated,
-  });
-
-  const { data: stats } = useQuery<Stats>({
-    queryKey: ["/api/stats"],
-    enabled: isAuthenticated,
-  });
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
+  const handleQuestionClick = (question: Question) => {
+    setSelectedQuestion(question);
+    setShowDetailModal(true);
+    
+    // Update view count
+    const updatedQuestions = questions.map(q =>
+      q.id === question.id ? { ...q, views: q.views + 1 } : q
     );
-  }
-
-  if (!isAuthenticated) {
-    return null; // Will be redirected by useEffect
-  }
-
-  const getDisplayName = (author?: Question['author']) => {
-    if (!author) return "Unknown User";
-    if (author.firstName && author.lastName) {
-      return `${author.firstName} ${author.lastName}`;
-    }
-    return author.firstName || author.lastName || "Unknown User";
+    setQuestions(updatedQuestions);
+    setFilteredQuestions(updatedQuestions);
   };
 
-  const popularTags = tags.slice(0, 12);
+  const handleSubmitQuestion = async (questionData: InsertQuestion) => {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const newQuestion: Question = {
+      ...questionData,
+      id: questions.length + 1,
+      votes: 0,
+      views: 0,
+      answerCount: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const updatedQuestions = [newQuestion, ...questions];
+    setQuestions(updatedQuestions);
+    setFilteredQuestions(updatedQuestions);
+  };
+
+  const handleVote = (type: "question" | "answer", id: number, voteType: "up" | "down") => {
+    if (type === "question") {
+      const updatedQuestions = questions.map(q => {
+        if (q.id === id) {
+          const voteChange = voteType === "up" ? 1 : -1;
+          return { ...q, votes: q.votes + voteChange };
+        }
+        return q;
+      });
+      setQuestions(updatedQuestions);
+      setFilteredQuestions(updatedQuestions);
+      
+      if (selectedQuestion && selectedQuestion.id === id) {
+        setSelectedQuestion(prev => prev ? { ...prev, votes: prev.votes + (voteType === "up" ? 1 : -1) } : null);
+      }
+    }
+    
+    toast({
+      title: "Vote recorded",
+      description: `Your ${voteType}vote has been recorded.`,
+    });
+  };
+
+  const handleAcceptAnswer = (answerId: number) => {
+    if (selectedQuestion) {
+      const updatedQuestion = { ...selectedQuestion, acceptedAnswerId: answerId };
+      setSelectedQuestion(updatedQuestion);
+      
+      const updatedQuestions = questions.map(q =>
+        q.id === selectedQuestion.id ? updatedQuestion : q
+      );
+      setQuestions(updatedQuestions);
+      setFilteredQuestions(updatedQuestions);
+      
+      toast({
+        title: "Answer accepted",
+        description: "The answer has been marked as accepted.",
+      });
+    }
+  };
+
+  const handleSubmitAnswer = async (questionId: number, content: string) => {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const updatedQuestions = questions.map(q =>
+      q.id === questionId ? { ...q, answerCount: q.answerCount + 1 } : q
+    );
+    setQuestions(updatedQuestions);
+    setFilteredQuestions(updatedQuestions);
+  };
+
+  const sortOptions = [
+    { value: "newest", label: "Newest" },
+    { value: "active", label: "Active" },
+    { value: "votes", label: "Votes" },
+    { value: "unanswered", label: "Unanswered" },
+  ];
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredQuestions.length / questionsPerPage);
+  const startIndex = (currentPage - 1) * questionsPerPage;
+  const endIndex = startIndex + questionsPerPage;
+  const currentQuestions = filteredQuestions.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Reset to first page when questions change
+  const handleSearch = (query: string) => {
+    if (!query.trim()) {
+      setFilteredQuestions(questions);
+      setCurrentPage(1);
+      return;
+    }
+
+    const filtered = questions.filter(
+      (question) =>
+        question.title.toLowerCase().includes(query.toLowerCase()) ||
+        question.content.toLowerCase().includes(query.toLowerCase()) ||
+        question.tags.some((tag) => tag.toLowerCase().includes(query.toLowerCase()))
+    );
+    setFilteredQuestions(filtered);
+    setCurrentPage(1);
+  };
+
+  const handleSort = (sortType: string) => {
+    setSortBy(sortType);
+    const sorted = [...filteredQuestions].sort((a, b) => {
+      switch (sortType) {
+        case "newest":
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case "active":
+          return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+        case "votes":
+          return b.votes - a.votes;
+        case "unanswered":
+          return a.answerCount - b.answerCount;
+        default:
+          return 0;
+      }
+    });
+    setFilteredQuestions(sorted);
+    setCurrentPage(1);
+  };
+
+  // Apply filter from header dropdown
+  const applyFilter = (filter: string) => {
+    let filtered = [...questions];
+    
+    switch (filter) {
+      case "unanswered":
+        filtered = filtered.filter(q => q.answerCount === 0);
+        break;
+      case "frequent":
+        filtered = filtered.filter(q => q.views > 100);
+        break;
+      case "votes":
+        filtered = filtered.sort((a, b) => b.votes - a.votes);
+        break;
+      case "active":
+        filtered = filtered.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+        break;
+      case "newest":
+      default:
+        filtered = filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+    }
+    
+    setFilteredQuestions(filtered);
+    setCurrentPage(1);
+  };
+
+  // Apply filter whenever filterBy changes
+  useEffect(() => {
+    let filtered = [...questions];
+    
+    switch (filterBy) {
+      case "unanswered":
+        filtered = filtered.filter(q => q.answerCount === 0);
+        break;
+      case "frequent":
+        filtered = filtered.filter(q => q.views > 100);
+        break;
+      case "votes":
+        filtered = filtered.sort((a, b) => b.votes - a.votes);
+        break;
+      case "active":
+        filtered = filtered.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+        break;
+      case "newest":
+      default:
+        filtered = filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+    }
+    
+    setFilteredQuestions(filtered);
+    setCurrentPage(1);
+  }, [filterBy, questions]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header />
+    <div className="min-h-screen bg-gray-50">
+      <Header
+        onAskQuestion={() => setShowAskModal(true)}
+        onSearch={handleSearch}
+        onFilterChange={setFilterBy}
+        currentFilter={filterBy}
+      />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Content */}
-          <main className="lg:col-span-3">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold text-foreground">Recent Questions</h1>
-              <Link href="/ask">
-                <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-                  Ask Question
-                </Button>
-              </Link>
-            </div>
-
-            {questionsLoading ? (
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <Card key={i} className="animate-pulse">
-                    <CardContent className="p-6">
-                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
-                      <div className="flex space-x-2">
-                        <div className="h-6 bg-gray-200 rounded-full w-16"></div>
-                        <div className="h-6 bg-gray-200 rounded-full w-16"></div>
-                      </div>
-                    </CardContent>
-                  </Card>
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-4 lg:gap-8">
+          <div className="hidden lg:block">
+            <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+          </div>
+          
+          <main className="min-w-0">
+            {/* Filter Bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">All Questions</h2>
+                <span className="text-xs sm:text-sm text-gray-500">
+                  {filteredQuestions.length} question{filteredQuestions.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+              <div className="flex items-center space-x-1 sm:space-x-2 overflow-x-auto">
+                {sortOptions.map((option) => (
+                  <Button
+                    key={option.value}
+                    variant={sortBy === option.value ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleSort(option.value)}
+                    className="text-xs sm:text-sm whitespace-nowrap"
+                  >
+                    {option.label}
+                  </Button>
                 ))}
               </div>
-            ) : questions.length === 0 ? (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h2 className="text-xl font-semibold text-foreground mb-2">No questions yet</h2>
-                  <p className="text-muted-foreground mb-4">
-                    Be the first to ask a question and start the conversation!
-                  </p>
-                  <Link href="/ask">
-                    <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-                      Ask the First Question
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {questions.map((question: Question) => (
-                  <Card key={question.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start mb-3">
-                        <Link href={`/questions/${question.id}`}>
-                          <h2 className="text-lg font-semibold text-foreground hover:text-orange-600 cursor-pointer">
-                            {question.title}
-                          </h2>
-                        </Link>
-                      </div>
-                      
-                      <p className="text-muted-foreground mb-4 line-clamp-2">
-                        {question.content.replace(/[#*`]/g, '').substring(0, 200)}...
-                      </p>
+            </div>
 
-                      {question.tags && question.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {question.tags.map((tag) => (
-                            <Badge
-                              key={tag.id}
-                              variant="secondary"
-                              className="bg-blue-100 text-blue-800 hover:bg-blue-200"
-                            >
-                              {tag.name}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
+            {/* Questions List */}
+            <div className="space-y-4">
+              {currentQuestions.map((question) => (
+                <QuestionCard
+                  key={question.id}
+                  question={question}
+                  onClick={handleQuestionClick}
+                />
+              ))}
+            </div>
 
-                      <div className="flex items-center justify-between text-sm text-muted-foreground">
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center space-x-1">
-                            <Eye className="h-4 w-4" />
-                            <span>{question.views} views</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <MessageSquare className="h-4 w-4" />
-                            <span>{question.answerCount || 0} answers</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Calendar className="h-4 w-4" />
-                            <span>
-                              {formatDistanceToNow(new Date(question.createdAt), { addSuffix: true })}
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <span>by {getDisplayName(question.author)}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-6 sm:mt-8">
+                <nav className="flex items-center space-x-1 sm:space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    disabled={currentPage === 1}
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    className="text-xs sm:text-sm px-2 sm:px-3"
+                  >
+                    <span className="hidden sm:inline">Previous</span>
+                    <span className="sm:hidden">Prev</span>
+                  </Button>
+                  
+                  {[...Array(totalPages)].map((_, index) => {
+                    const pageNum = index + 1;
+                    const isCurrentPage = pageNum === currentPage;
+                    
+                    // Show first page, last page, current page, and adjacent pages
+                    if (
+                      pageNum === 1 ||
+                      pageNum === totalPages ||
+                      (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                    ) {
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={isCurrentPage ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(pageNum)}
+                          className="text-xs sm:text-sm px-2 sm:px-3 min-w-[32px] sm:min-w-[36px]"
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    }
+                    
+                    // Show ellipsis for gaps
+                    if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                      return (
+                        <span key={pageNum} className="px-1 sm:px-2 py-2 text-gray-500 text-xs sm:text-sm">
+                          ...
+                        </span>
+                      );
+                    }
+                    
+                    return null;
+                  })}
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    disabled={currentPage === totalPages}
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    className="text-xs sm:text-sm px-2 sm:px-3"
+                  >
+                    <span className="hidden sm:inline">Next</span>
+                    <span className="sm:hidden">Next</span>
+                  </Button>
+                </nav>
               </div>
             )}
           </main>
-
-          {/* Sidebar */}
-          <aside className="lg:col-span-1 space-y-6">
-            {/* Popular Tags */}
-            <Card>
-              <CardHeader>
-                <h3 className="font-semibold text-foreground">Popular Tags</h3>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {popularTags.map((tag: any) => (
-                    <Badge
-                      key={tag.id}
-                      variant="secondary"
-                      className="bg-blue-100 text-blue-800 hover:bg-blue-200 cursor-pointer"
-                    >
-                      {tag.name}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Community Stats */}
-            {stats && (
-              <Card>
-                <CardHeader>
-                  <h3 className="font-semibold text-foreground">Community Stats</h3>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Questions</span>
-                      <span className="font-medium text-foreground">{stats.questions.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Answers</span>
-                      <span className="font-medium text-foreground">{stats.answers.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Users</span>
-                      <span className="font-medium text-foreground">{stats.users.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Tags</span>
-                      <span className="font-medium text-foreground">{stats.tags.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </aside>
         </div>
       </div>
+
+      {/* Modals */}
+      <AskQuestionModal
+        isOpen={showAskModal}
+        onClose={() => setShowAskModal(false)}
+        onSubmit={handleSubmitQuestion}
+      />
+      
+      <QuestionDetailModal
+        question={selectedQuestion}
+        isOpen={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        onVote={handleVote}
+        onAcceptAnswer={handleAcceptAnswer}
+        onSubmitAnswer={handleSubmitAnswer}
+      />
     </div>
   );
 }

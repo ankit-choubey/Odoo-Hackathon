@@ -1,218 +1,121 @@
-import {
-  pgTable,
-  text,
-  varchar,
-  timestamp,
-  jsonb,
-  index,
-  serial,
-  integer,
-  boolean,
-} from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Session storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
-export const sessions = pgTable(
-  "sessions",
-  {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
-    expire: timestamp("expire").notNull(),
-  },
-  (table) => [index("IDX_session_expire").on(table.expire)],
-);
-
-// User storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique(),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  profileImageUrl: varchar("profile_image_url"),
-  role: varchar("role").notNull().default("user"), // guest, user, admin
-  reputation: integer("reputation").notNull().default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const tags = pgTable("tags", {
   id: serial("id").primaryKey(),
-  name: varchar("name").notNull().unique(),
-  description: text("description"),
+  username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
+  password: text("password").notNull(),
+  reputation: integer("reputation").default(0),
+  role: text("role").default("user"), // "user", "admin", "guest"
+  avatar: text("avatar"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const questions = pgTable("questions", {
   id: serial("id").primaryKey(),
-  title: varchar("title").notNull(),
+  title: text("title").notNull(),
   content: text("content").notNull(),
-  authorId: varchar("author_id").notNull().references(() => users.id),
+  authorId: integer("author_id").references(() => users.id),
+  votes: integer("votes").default(0),
+  views: integer("views").default(0),
+  answerCount: integer("answer_count").default(0),
   acceptedAnswerId: integer("accepted_answer_id"),
-  views: integer("views").notNull().default(0),
+  tags: text("tags").array(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const questionTags = pgTable("question_tags", {
-  id: serial("id").primaryKey(),
-  questionId: integer("question_id").notNull().references(() => questions.id, { onDelete: "cascade" }),
-  tagId: integer("tag_id").notNull().references(() => tags.id, { onDelete: "cascade" }),
 });
 
 export const answers = pgTable("answers", {
   id: serial("id").primaryKey(),
   content: text("content").notNull(),
-  authorId: varchar("author_id").notNull().references(() => users.id),
-  questionId: integer("question_id").notNull().references(() => questions.id, { onDelete: "cascade" }),
-  isAccepted: boolean("is_accepted").notNull().default(false),
+  questionId: integer("question_id").references(() => questions.id),
+  authorId: integer("author_id").references(() => users.id),
+  votes: integer("votes").default(0),
+  isAccepted: boolean("is_accepted").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const votes = pgTable("votes", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  answerId: integer("answer_id").references(() => answers.id, { onDelete: "cascade" }),
-  questionId: integer("question_id").references(() => questions.id, { onDelete: "cascade" }),
-  voteType: varchar("vote_type").notNull(), // 'up' or 'down'
+  userId: integer("user_id").references(() => users.id),
+  targetId: integer("target_id"), // question or answer id
+  targetType: text("target_type"), // "question" or "answer"
+  voteType: text("vote_type"), // "up" or "down"
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const notifications = pgTable("notifications", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  type: varchar("type").notNull(), // 'answer', 'comment', 'mention', 'accepted'
-  title: varchar("title").notNull(),
+  userId: integer("user_id").references(() => users.id),
+  type: text("type").notNull(), // "answer", "comment", "mention", "vote"
   message: text("message").notNull(),
-  isRead: boolean("is_read").notNull().default(false),
-  relatedQuestionId: integer("related_question_id").references(() => questions.id),
-  relatedAnswerId: integer("related_answer_id").references(() => answers.id),
+  isRead: boolean("is_read").default(false),
+  relatedId: integer("related_id"), // question/answer id
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Relations
-export const usersRelations = relations(users, ({ many }) => ({
-  questions: many(questions),
-  answers: many(answers),
-  votes: many(votes),
-  notifications: many(notifications),
-}));
+export const tags = pgTable("tags", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  questionCount: integer("question_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
 
-export const questionsRelations = relations(questions, ({ one, many }) => ({
-  author: one(users, {
-    fields: [questions.authorId],
-    references: [users.id],
-  }),
-  answers: many(answers),
-  questionTags: many(questionTags),
-  votes: many(votes),
-  acceptedAnswer: one(answers, {
-    fields: [questions.acceptedAnswerId],
-    references: [answers.id],
-  }),
-}));
-
-export const answersRelations = relations(answers, ({ one, many }) => ({
-  author: one(users, {
-    fields: [answers.authorId],
-    references: [users.id],
-  }),
-  question: one(questions, {
-    fields: [answers.questionId],
-    references: [questions.id],
-  }),
-  votes: many(votes),
-}));
-
-export const tagsRelations = relations(tags, ({ many }) => ({
-  questionTags: many(questionTags),
-}));
-
-export const questionTagsRelations = relations(questionTags, ({ one }) => ({
-  question: one(questions, {
-    fields: [questionTags.questionId],
-    references: [questions.id],
-  }),
-  tag: one(tags, {
-    fields: [questionTags.tagId],
-    references: [tags.id],
-  }),
-}));
-
-export const votesRelations = relations(votes, ({ one }) => ({
-  user: one(users, {
-    fields: [votes.userId],
-    references: [users.id],
-  }),
-  answer: one(answers, {
-    fields: [votes.answerId],
-    references: [answers.id],
-  }),
-  question: one(questions, {
-    fields: [votes.questionId],
-    references: [questions.id],
-  }),
-}));
-
-export const notificationsRelations = relations(notifications, ({ one }) => ({
-  user: one(users, {
-    fields: [notifications.userId],
-    references: [users.id],
-  }),
-  relatedQuestion: one(questions, {
-    fields: [notifications.relatedQuestionId],
-    references: [questions.id],
-  }),
-  relatedAnswer: one(answers, {
-    fields: [notifications.relatedAnswerId],
-    references: [answers.id],
-  }),
-}));
-
-// Schema types
-export type UpsertUser = typeof users.$inferInsert;
-export type User = typeof users.$inferSelect;
+// Insert schemas
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  reputation: true,
+});
 
 export const insertQuestionSchema = createInsertSchema(questions).omit({
   id: true,
-  acceptedAnswerId: true,
-  views: true,
   createdAt: true,
   updatedAt: true,
+  votes: true,
+  views: true,
+  answerCount: true,
 });
-export type InsertQuestion = z.infer<typeof insertQuestionSchema>;
-export type Question = typeof questions.$inferSelect;
 
 export const insertAnswerSchema = createInsertSchema(answers).omit({
   id: true,
-  isAccepted: true,
   createdAt: true,
   updatedAt: true,
+  votes: true,
+  isAccepted: true,
 });
-export type InsertAnswer = z.infer<typeof insertAnswerSchema>;
-export type Answer = typeof answers.$inferSelect;
-
-export const insertTagSchema = createInsertSchema(tags).omit({
-  id: true,
-  createdAt: true,
-});
-export type InsertTag = z.infer<typeof insertTagSchema>;
-export type Tag = typeof tags.$inferSelect;
 
 export const insertVoteSchema = createInsertSchema(votes).omit({
   id: true,
   createdAt: true,
 });
-export type InsertVote = z.infer<typeof insertVoteSchema>;
-export type Vote = typeof votes.$inferSelect;
 
 export const insertNotificationSchema = createInsertSchema(notifications).omit({
   id: true,
   createdAt: true,
+  isRead: true,
 });
-export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+
+export const insertTagSchema = createInsertSchema(tags).omit({
+  id: true,
+  createdAt: true,
+  questionCount: true,
+});
+
+// Types
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type Question = typeof questions.$inferSelect;
+export type InsertQuestion = z.infer<typeof insertQuestionSchema>;
+export type Answer = typeof answers.$inferSelect;
+export type InsertAnswer = z.infer<typeof insertAnswerSchema>;
+export type Vote = typeof votes.$inferSelect;
+export type InsertVote = z.infer<typeof insertVoteSchema>;
 export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type Tag = typeof tags.$inferSelect;
+export type InsertTag = z.infer<typeof insertTagSchema>;

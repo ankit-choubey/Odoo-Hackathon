@@ -4,57 +4,51 @@
 
 :root {
   --background: hsl(0, 0%, 100%);
-  --foreground: hsl(222, 84%, 4.9%);
-  --muted: hsl(210, 40%, 96%);
-  --muted-foreground: hsl(215, 16%, 47%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(222, 84%, 4.9%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(222, 84%, 4.9%);
-  --border: hsl(214, 32%, 91%);
-  --input: hsl(214, 32%, 91%);
-  --primary: hsl(24, 95%, 53%);
-  --primary-foreground: hsl(0, 0%, 98%);
-  --secondary: hsl(210, 40%, 96%);
-  --secondary-foreground: hsl(222, 47%, 11%);
-  --accent: hsl(210, 40%, 96%);
-  --accent-foreground: hsl(222, 47%, 11%);
-  --destructive: hsl(0, 84%, 60%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(222, 84%, 4.9%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(25, 95%, 53%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(206, 100%, 40%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --accent: hsl(120, 61%, 34%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --warning: hsl(45, 100%, 52%);
+  --warning-foreground: hsl(20, 14.3%, 4.1%);
+  --ring: hsl(20, 14.3%, 4.1%);
   --radius: 0.5rem;
-  --chart-1: hsl(12, 76%, 61%);
-  --chart-2: hsl(173, 58%, 39%);
-  --chart-3: hsl(197, 37%, 24%);
-  --chart-4: hsl(43, 74%, 66%);
-  --chart-5: hsl(27, 87%, 67%);
 }
 
 .dark {
-  --background: hsl(222, 84%, 4.9%);
-  --foreground: hsl(210, 40%, 98%);
-  --muted: hsl(217, 32%, 17%);
-  --muted-foreground: hsl(215, 20%, 65%);
-  --popover: hsl(222, 84%, 4.9%);
-  --popover-foreground: hsl(210, 40%, 98%);
-  --card: hsl(222, 84%, 4.9%);
-  --card-foreground: hsl(210, 40%, 98%);
-  --border: hsl(217, 32%, 17%);
-  --input: hsl(217, 32%, 17%);
-  --primary: hsl(24, 95%, 53%);
-  --primary-foreground: hsl(0, 0%, 98%);
-  --secondary: hsl(217, 32%, 17%);
-  --secondary-foreground: hsl(210, 40%, 98%);
-  --accent: hsl(217, 32%, 17%);
-  --accent-foreground: hsl(210, 40%, 98%);
-  --destructive: hsl(0, 62%, 30%);
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(25, 95%, 53%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(206, 100%, 40%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --accent: hsl(120, 61%, 34%);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(0, 62.8%, 30.6%);
   --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(212, 12%, 84%);
-  --chart-1: hsl(220, 70%, 50%);
-  --chart-2: hsl(160, 60%, 45%);
-  --chart-3: hsl(30, 80%, 55%);
-  --chart-4: hsl(280, 65%, 60%);
-  --chart-5: hsl(340, 75%, 55%);
+  --warning: hsl(45, 100%, 52%);
+  --warning-foreground: hsl(20, 14.3%, 4.1%);
+  --ring: hsl(240, 4.9%, 83.9%);
 }
 
 @layer base {
@@ -64,29 +58,126 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   }
 }
 
 @layer utilities {
-  .notification-enter {
-    animation: slideDown 0.3s ease-out;
+  .vote-btn:hover {
+    transform: scale(1.1);
   }
-
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
+  
+  .notification-badge {
+    animation: pulse 2s infinite;
+  }
+  
+  .question-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar-nav:hover {
+    background: hsl(var(--muted));
+  }
+  
+  .editor-toolbar:hover {
+    background: hsl(var(--muted));
+  }
+  
+  .accepted-answer {
+    border-left: 4px solid hsl(var(--accent));
+  }
+  
+  .tag-pill {
+    background: hsl(206, 100%, 97%);
+    color: hsl(var(--secondary));
+  }
+  
+  /* Mobile-first responsive design */
+  @media (max-width: 640px) {
+    .mobile-stack {
+      flex-direction: column;
     }
-    to {
-      opacity: 1;
-      transform: translateY(0);
+    
+    .mobile-compact {
+      padding: 0.5rem;
+    }
+    
+    .mobile-text-sm {
+      font-size: 0.875rem;
+    }
+    
+    .mobile-hidden {
+      display: none;
+    }
+    
+    .mobile-full {
+      width: 100%;
+    }
+    
+    .mobile-gap-sm {
+      gap: 0.25rem;
+    }
+    
+    .mobile-px-2 {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+    }
+    
+    .mobile-text-xs {
+      font-size: 0.75rem;
+    }
+    
+    .mobile-py-1 {
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
     }
   }
-
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  
+  /* Tablet styles */
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .tablet-compact {
+      padding: 0.75rem;
+    }
+  }
+  
+  /* Responsive grid utilities */
+  .grid-responsive {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  @media (min-width: 768px) {
+    .grid-responsive {
+      grid-template-columns: 250px 1fr;
+    }
+  }
+  
+  /* Responsive text utilities */
+  .text-responsive {
+    font-size: 0.875rem;
+  }
+  
+  @media (min-width: 640px) {
+    .text-responsive {
+      font-size: 1rem;
+    }
+  }
+  
+  /* Responsive spacing utilities */
+  .spacing-responsive {
+    padding: 0.75rem;
+  }
+  
+  @media (min-width: 640px) {
+    .spacing-responsive {
+      padding: 1rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .spacing-responsive {
+      padding: 1.5rem;
+    }
   }
 }
